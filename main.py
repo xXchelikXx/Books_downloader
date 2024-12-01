@@ -66,7 +66,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-            print('Книга не найдена')
-            
-if __name__ == "__main__":
-	main()
