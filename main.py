@@ -4,6 +4,7 @@ import pathlib
 from bs4 import BeautifulSoup
 import os
 from urllib.parse import urljoin, unquote, urlsplit
+from time import sleep
 
 def check_for_redirect(response):
     if response.history:
@@ -47,7 +48,8 @@ def main():
     args = parser.parse_args()
     for number in range(args.start_id, args.end_id):
         try:
-            url = f"https://tululu.org/txt.php?id={number}"
+            url_id = {'id' : f'{number}'}
+            url = requests.get("https://tululu.org/txt.php", params=url_id)
             book_url = f'https://tululu.org/b{number}/'
             response = requests.get(book_url)
             response.raise_for_status()
@@ -55,7 +57,15 @@ def main():
             book_parameters = parse_book_page(response, book_url)
             download_txt(book_parameters['name_book'],url)
             download_image(book_parameters['image_url'])
-        except:
+        except requests.exceptions.HTTPError:
+            print('Книга не найдена')
+        except requests.exceptions.ConnectionError:
+            print('Проблемы с сетью...')
+            sleep(20)
+            
+
+if __name__ == "__main__":
+	main()
             print('Книга не найдена')
             
 if __name__ == "__main__":
