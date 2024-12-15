@@ -10,9 +10,10 @@ def check_for_redirect(response):
     if response.history:
         raise requests.exceptions.HTTPError
 
-def download_txt(name_book,url,folder='books/'):
-    os.makedirs(folder,exist_ok=True)
-    response = requests.get(url)
+def download_txt(name_book, number, url, folder='books/'):
+    params = {'id' : number}
+    os.makedirs(folder, exist_ok=True)
+    response = requests.get(url, params=params)
     response.raise_for_status()
     check_for_redirect(response)
     with open(f'books/{name_book.strip()}.txt', 'wb') as file:
@@ -48,14 +49,13 @@ def main():
     args = parser.parse_args()
     for number in range(args.start_id, args.end_id):
         try:
-            url_id = {'id' : f'{number}'}
-            url = requests.get("https://tululu.org/txt.php", params=url_id)
+            url = "https://tululu.org/txt.php"
             book_url = f'https://tululu.org/b{number}/'
             response = requests.get(book_url)
             response.raise_for_status()
             check_for_redirect(response)
             book_parameters = parse_book_page(response, book_url)
-            download_txt(book_parameters['name_book'],url)
+            download_txt(book_parameters['name_book'], number, url)
             download_image(book_parameters['image_url'])
         except requests.exceptions.HTTPError:
             print('Книга не найдена')
